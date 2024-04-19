@@ -15,6 +15,7 @@
     <xacro:property name="gripper_joint_damping" value="1.0" />
     <xacro:property name="max_gripper_effort" value="20"/>
     <xacro:property name="max_gripper_velocity" value="2"/>
+    <xacro:property name="M_PI" value="3.1415926535897931" />
  
  
   <xacro:macro name="yumi_servo_gripper" params="parent name hardware_interface *origin">
@@ -36,7 +37,12 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://yumi_description/meshes/gripper/base.stl"/>
+          <xacro:if value="${(name == 'gripper_l')}">
+            <mesh filename="package://yumi_description/meshes/gripper/base_with_case_l.stl"/>
+          </xacro:if>
+          <xacro:if value="${(name == 'gripper_r')}">
+            <mesh filename="package://yumi_description/meshes/gripper/base_with_case_r.stl"/>
+          </xacro:if>
         </geometry>
         <material name="Light_Grey"/>
       </visual>
@@ -44,7 +50,12 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://yumi_description/meshes/gripper/coarse/base.stl"/>
+          <xacro:if value="${(name == 'gripper_l')}">
+            <mesh filename="package://yumi_description/meshes/gripper/coarse/base_with_case_l.stl"/>
+          </xacro:if>
+          <xacro:if value="${(name == 'gripper_r')}">
+            <mesh filename="package://yumi_description/meshes/gripper/coarse/base_with_case_r.stl"/>
+          </xacro:if>
         </geometry>
         <material name="Light_Grey"/>
       </collision>
@@ -68,7 +79,8 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://yumi_description/meshes/gripper/finger.stl"/>
+          <mesh filename="package://yumi_description/meshes/gripper/finger_long.stl"/>
+          <!-- <mesh filename="package://yumi_description/meshes/gripper/finger.stl"/> -->
         </geometry>
         <material name="Blue"/>
       </visual>
@@ -76,7 +88,8 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://yumi_description/meshes/gripper/coarse/finger.stl"/>
+          <mesh filename="package://yumi_description/meshes/gripper/coarse/finger_long.stl"/>
+          <!-- <mesh filename="package://yumi_description/meshes/gripper/coarse/finger.stl"/> -->
         </geometry>
         <material name="Blue"/>
       </collision>
@@ -99,7 +112,8 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://yumi_description/meshes/gripper/finger.stl"/>
+          <mesh filename="package://yumi_description/meshes/gripper/finger_long.stl"/>
+          <!-- <mesh filename="package://yumi_description/meshes/gripper/finger.stl"/> -->
         </geometry>
         <material name="Blue"/>
       </visual>
@@ -107,9 +121,45 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://yumi_description/meshes/gripper/coarse/finger.stl"/>
+          <mesh filename="package://yumi_description/meshes/gripper/coarse/finger_long.stl"/>
+          <!-- <mesh filename="package://yumi_description/meshes/gripper/coarse/finger.stl"/> -->
         </geometry>
         <material name="Blue"/>
+      </collision>
+    </link>
+
+    <!-- joint between body and camera -->
+    <joint name="${name}_camera_joint" type="fixed">
+      <parent link="${name}_base"/>
+      <child link="${name}_camera_link"/>
+      <xacro:if value="${(name == 'gripper_l')}">
+        <origin xyz="0.0171 0.0533 0.0535" rpy="1.1805 -1.5625 -2.7600"/>
+      </xacro:if>
+      <xacro:if value="${(name == 'gripper_r')}">
+        <origin xyz="-0.0115 -0.0544 0.0603" rpy="-0.3901 -1.5426 1.9291"/>
+      </xacro:if>
+    </joint>
+
+    <link name="${name}_camera_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="1"/>
+        <inertia ixx="0.1"  ixy="0"  ixz="0" iyy="0.1" iyz="0" izz="0.1" />
+      </inertial>
+
+      <visual>
+        <origin xyz="4.3e-3 -0.0175 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+        <geometry>
+          <mesh filename="package://yumi_description/meshes/d435.dae" scale="1 1 1"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 -0.0175 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.02505 0.090 0.025"/>
+        </geometry>
       </collision>
     </link>
 

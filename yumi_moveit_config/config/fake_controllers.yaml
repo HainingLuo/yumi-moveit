@@ -39,3 +39,9 @@ controller_list:
   - name: fake_right_gripper_controller
     joints:
       - gripper_r_joint
+      
+initial:
+  - group: left_arm
+    pose: calc
+  - group: right_arm
+    pose: calc

@@ -6,7 +6,11 @@
   <arg name="robot_description" default="robot_description"/>
 
   <!-- Load universal robot description format (URDF) -->
-  <param if="$(arg load_robot_description)" name="$(arg robot_description)" textfile="$(find yumi_description)/urdf/yumi.urdf"/>
+  <!-- <param if="$(arg load_robot_description)" name="$(arg robot_description)" textfile="$(find yumi_description)/urdf/yumi.urdf"/> -->
+  <arg name="yumi_setup" default="default"/>
+  <arg name="arms_hardware_interface" default="PositionJointInterface"/>
+  <arg name="grippers_hardware_interface" default="EffortJointInterface"/>
+  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="rosrun xacro xacro '$(find yumi_description)/urdf/yumi.urdf.xacro' arms_interface:=$(arg arms_hardware_interface) grippers_interface:=$(arg grippers_hardware_interface) yumi_setup:=$(arg yumi_setup)" />
 
   <!-- The semantic description that corresponds to the URDF -->
   <param name="$(arg robot_description)_semantic" textfile="$(find yumi_moveit_config)/config/yumi.srdf" />

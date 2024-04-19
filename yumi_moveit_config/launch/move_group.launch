@@ -1,9 +1,16 @@
+
+ 
+     
+     
+     
+     
 <launch>
 
   <include file="$(find yumi_moveit_config)/launch/planning_context.launch" />
 
   <!-- GDB Debug Option -->
   <arg name="debug" default="false" />
+  <arg name="pipeline" default="ompl" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix"
 	   value="gdb -x $(find yumi_moveit_config)/launch/gdb_settings.gdb --ex run --args" />
@@ -22,7 +29,7 @@
 
   <!-- Planning Functionality -->
   <include ns="move_group" file="$(find yumi_moveit_config)/launch/planning_pipeline.launch.xml">
-    <arg name="pipeline" value="ompl" />
+    <arg name="pipeline" value="$(arg pipeline)" />
   </include>
 
   <!-- Trajectory Execution Functionality -->
@@ -47,20 +54,31 @@
     <param name="jiggle_fraction" value="$(arg jiggle_fraction)" />
 
     <!-- load these non-default MoveGroup capabilities -->
-    <!--
-    <param name="capabilities" value="
-                  a_package/AwsomeMotionPlanningCapability
-                  another_package/GraspPlanningPipeline
-                  " />
-    -->
+    
+    <!-- <param name="capabilities" value="
+              descartes_capability/MoveGroupDescartesPathService
+                  " /> -->
+   
 
     <!-- inhibit these default MoveGroup capabilities -->
-    <!--
-    <param name="disable_capabilities" value="
-                  move_group/MoveGroupKinematicsService
-                  move_group/ClearOctomapService
-                  " />
-    -->
+    
+    <!-- <param name="disable_capabilities" value="
+                  move_group/MoveGroupCartesianPathService
+                  " /> -->
+   
+
+    <!-- MoveGroup capabilities to load move_group/MoveGroupPickPlaceAction-->
+    <param name="capabilities" value="
+              move_group/MoveGroupCartesianPathService
+				      move_group/MoveGroupExecuteTrajectoryAction
+				      move_group/MoveGroupKinematicsService
+				      move_group/MoveGroupMoveAction
+				      move_group/MoveGroupPlanService
+				      move_group/MoveGroupQueryPlannersService
+				      move_group/MoveGroupStateValidationService
+				      move_group/MoveGroupGetPlanningSceneService
+				      move_group/ClearOctomapService
+				      " />
 
     <!-- Publish the planning scene of the physical robot so that rviz plugin can know actual robot -->
     <param name="planning_scene_monitor/publish_planning_scene" value="$(arg publish_monitored_planning_scene)" />

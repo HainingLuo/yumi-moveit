@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- The planning and execution components of MoveIt! configured to run -->
+  <!-- Uses the ROS-Industrial ABB interface -->
+
+<!--============================================================================
+    SET UP ARGUMENTS
+=============================================================================-->
+  <!-- Controls whether we connect to a Simulated or Real robot -->
+  <arg name="sim" default="false"/>
+  <arg name="rviz" default="true"/>
+  <arg name="robot_ip" default="192.168.125.1" unless="$(arg sim)"/>
+
+  <!-- RViz file for MoveIt -->
+  <arg name="rviz_file" default="$(find yumi_moveit_config)/config/moveit.rviz" />
+
+  <!-- By default, we do not start a database (it can be large) -->
+  <arg name="db" default="false"/>
+  <!-- Allow user to specify database location -->
+  <arg name="db_path" default="$(find yumi_moveit_config)/default_warehouse_mongo_db"/>
+
+<!--============================================================================
+    SET UP ROBOT
+=============================================================================-->
+  <!-- Run the robot simulator and action interface nodes -->
+  <group ns="yumi" if="$(arg sim)">
+    <include file="$(find industrial_robot_simulator)/launch/robot_interface_simulator.launch" ns="left_arm"/>
+    <rosparam command="load" file="$(find yumi_support)/config/joint_names_left.yaml" ns="left_arm"/>
+		<node pkg="topic_tools" type="relay" name="left_joints_relay" args="left_arm/joint_states joint_states"/>
+
+    <include file="$(find industrial_robot_simulator)/launch/robot_interface_simulator.launch" ns="right_arm"/>
+    <rosparam command="load" file="$(find yumi_support)/config/joint_names_right.yaml" ns="right_arm"/>
+		<node pkg="topic_tools" type="relay" name="right_joints_relay" args="right_arm/joint_states joint_states"/>
+  </group>
+
+  <!-- Run the "real robot" interface nodes -->
+  <!--   - this typically includes: robot_state, motion_interface, and joint_trajectory_action nodes -->
+  <!--   - replace these calls with appropriate robot-specific calls or launch files -->
+  <!-- <group ns="yumi" unless="$(arg sim)"> -->
+    <!-- <include file="$(find yumi_support)/launch/robot_interface.launch">
+      <arg name="robot_ip" value="$(arg robot_ip)"/>
+    </include> -->
+  <!-- </group> -->
+
+  <!-- Joint state and robot state publisher calls -->
+  <node name="yumi_joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <rosparam param="source_list">["/yumi/joint_states", "/yumi/gripper_states"]</rosparam>
+  </node>
+
+  <node name="yumi_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+<!--============================================================================
+    SET UP MOVEIT
+=============================================================================-->
+  <!-- Load the URDF, SRDF and other .yaml configuration files on the param server -->
+  <include file="$(find yumi_moveit_config)/launch/planning_context.launch">
+    <arg name="load_robot_description" value="true"/>
+  </include>
+
+  <!-- Run the main MoveIt executable with trajectory execution and RViz tool -->
+  <include file="$(find yumi_moveit_config)/launch/move_group.launch">
+    <arg name="publish_monitored_planning_scene" value="true"/>
+  </include>
+
+  <include file="$(find yumi_moveit_config)/launch/moveit_rviz.launch" if="$(arg rviz)">
+    <arg name="config" value="true"/>
+    <arg name="rviz_file" value="$(arg rviz_file)"/>
+  </include>
+
+  <!-- If database loading was enabled, start mongodb as well -->
+  <include file="$(find yumi_moveit_config)/launch/default_warehouse_db.launch" if="$(arg db)">
+    <arg name="moveit_warehouse_database_path" value="$(arg db_path)"/>
+  </include>
+</launch>

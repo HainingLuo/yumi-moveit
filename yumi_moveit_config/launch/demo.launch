@@ -8,6 +8,9 @@
   <!-- By default, we are not in debug mode -->
   <arg name="debug" default="false" />
 
+  <arg name="rviz" default="true"/>
+  <!-- RViz file for MoveIt -->
+  <arg name="rviz_file" default="$(find yumi_moveit_config)/config/moveit.rviz" />
   <!--
   By default, hide joint_state_publisher's GUI
 
@@ -17,6 +20,7 @@
   This corresponds to moving around the real robot without the use of MoveIt.
   -->
   <arg name="use_gui" default="false" />
+  <arg name="rate" default="50" />
 
   <!-- Load the URDF, SRDF and other .yaml configuration files on the param server -->
   <include file="$(find yumi_moveit_config)/launch/planning_context.launch">
@@ -29,6 +33,7 @@
   <!-- We do not have a robot connected, so publish fake joint states -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="/use_gui" value="$(arg use_gui)"/>
+    <param name="/rate" value="$(arg rate)"/>
     <rosparam param="/source_list">[/move_group/fake_controller_joint_states]</rosparam>
   </node>
 
@@ -44,9 +49,10 @@
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
-  <include file="$(find yumi_moveit_config)/launch/moveit_rviz.launch">
+  <include file="$(find yumi_moveit_config)/launch/moveit_rviz.launch" if="$(arg rviz)">
     <arg name="config" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
+    <arg name="rviz_file" value="$(arg rviz_file)"/>
   </include>
 
   <!-- If database loading was enabled, start mongodb as well -->

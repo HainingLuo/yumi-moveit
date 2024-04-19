@@ -1,5 +1,5 @@
-# ROS packages for the ABB YuMi (IRB14000) robot
+# MoveIt and description packages for the ABB YuMi (IRB14000) robot
 
 
-
-For documentation, and instructions on how to install and employ this package, check [our wiki](https://github.com/kth-ros-pkg/yumi/wiki).
+* Forked from [kth-ros-pkg/yumi](https://github.com/kth-ros-pkg/yumi) and slight modifications were made.
+* This package is used to control the ABB YuMi (IRB14000) robot using MoveIt in simulation where the controllers are implemented.
